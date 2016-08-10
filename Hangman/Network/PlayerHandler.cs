@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Hangman
 {
@@ -21,7 +22,7 @@ namespace Hangman
         public Queue<char> GuessQueue { get; set; }
 
 
-        public PlayerHandler(TcpClient c, Server server, Queue<char>guessQueue)
+        public PlayerHandler(TcpClient c, Server server, Queue<char> guessQueue)
         {
             tcpclient = c;
             this.myServer = server;
@@ -44,10 +45,10 @@ namespace Hangman
 
                 while (!message.Equals("quit"))
                 {
-
                     NetworkStream n = tcpclient.GetStream();
+                    GameWords words = new GameWords();
                     message = new BinaryReader(n).ReadString();
-                    
+
                     if (message.Split(' ')[0].ToLower().Equals("pm"))
                     {
                         var msg = "";
@@ -62,7 +63,10 @@ namespace Hangman
                     }
                     else if (message.Length == 1)
                     {
-                       GuessQueue.Enqueue(message[0]);
+                        // Todo: Jsonkonvertering
+                        //PlayerInput tmpInput = new PlayerInput { Name = this.Name, Guess = message[0] };
+                        //var tmpMsg = JsonConvert.SerializeObject(tmpInput);
+                        GuessQueue.Enqueue(message[0]);
                     }
                     else
                     {
@@ -82,7 +86,6 @@ namespace Hangman
 
         public void SetUserName()
         {
-
             NetworkStream n = tcpclient.GetStream();
             BinaryWriter w = new BinaryWriter(n);
             w.Write("Hello new user. Please set a username: ");
@@ -90,7 +93,6 @@ namespace Hangman
             Name = username;
             myServer.Broadcast(this, $"has joined the game!");
             w.Flush();
-
         }
     }
 }

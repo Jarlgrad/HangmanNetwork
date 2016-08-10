@@ -36,7 +36,7 @@ namespace Hangman
 
                     if (players.Count > 1 && _gameOn == false)
                     {
-                        game.StartGame(players);
+                        game.StartGame();
                     }
                 }
             }

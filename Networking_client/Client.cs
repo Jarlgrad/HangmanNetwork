@@ -32,8 +32,8 @@ namespace Networking_client
             Console.WriteLine($"IP: {localIP}");
             #endregion
 
-            client = new TcpClient("192.168.220.108", 5000);
-            //client = new TcpClient(localIP, 5000);
+            //client = new TcpClient("192.168.220.108", 5000);
+            client = new TcpClient(localIP, 5000);
 
             Thread listenerThread = new Thread(Send);
             listenerThread.Start();

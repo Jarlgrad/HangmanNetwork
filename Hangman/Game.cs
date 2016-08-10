@@ -40,7 +40,7 @@ namespace Hangman
         {
             do
             {
-                Thread.Sleep(700);
+                Thread.Sleep(1000);
                 if (GuessQueue.Count > 0)
                 {
                     Play(GuessQueue.Dequeue());
@@ -49,22 +49,16 @@ namespace Hangman
 
         }
 
-        public void StartGame(List<PlayerHandler> players)
+        public void StartGame()
         {
             // Todo: ska bara köras en gång
-            PlayGame(players);
+            SetHiddenWord(KeyWord);
         }
 
-        private void PlayGame(List<PlayerHandler> players)
-        {
-            int playRounds = 0;
-            do
-            {
-                SetHiddenWord(KeyWord);
-                playRounds++;
-            } while (playRounds < 3);
-        }
-
+        /// <summary>
+        /// Väljer randomiserat ut ett ord ur dictionary
+        /// </summary>
+        /// <returns>Ord ur dictionary</returns>
         private string SetKeyWord()
         {
             // Todo: Vid Nytt spel Ska denna metod ta fram ett nytt ord! 
@@ -126,12 +120,9 @@ namespace Hangman
         /// <param name="players"></param>
         public void Play(char a)
         {
-            //s=testvariabel
-            string s = "";
-            int i = 0;
             var sb = "";
 
-            Console.Clear();
+            //Console.Clear();
             var IsCorrect = ValidateGuess(a);
 
             if (IsCorrect)
@@ -152,23 +143,14 @@ namespace Hangman
             }
             sb = strb.ToString();
 
-            //if (sb == KeyWord)
-            //{
-            //    item.WonGame = true;
-            //    item.Wins++;
-            //    s = item.Name;
-            //    i = item.Wins;
-            //}
-            //if (item.WonGame)
-            //    break;
             MyServer.Broadcast(DrawGame());
 
-            if (sb != KeyWord && WrongGuesses.Count < 10)
-                RoundOver = true;
-
             // Todo: Lägg till möjligheter att ändra antal gissningar vid nytt spel. 
-            MyServer.Broadcast($"Game Over {s} won the game ({i})");
-
+            if (sb == KeyWord || WrongGuesses.Count > 10)
+            {
+                RoundOver = true;
+                MyServer.Broadcast($"Game Over this.player won the game ()");
+            }
         }
 
         /// <summary>
@@ -182,45 +164,6 @@ namespace Hangman
                 tempStr += item;
             }
             return tempStr;
-
-        }
-
-        /// <summary>
-        /// Säger att det är spelarens tur, tar emot en gissning och felcheckar denna
-        /// </summary>
-        /// <param name="item">Tar emot en player</param>
-        /// <returns>Spelarens gissning</returns>
-        private char Guess(string guess)
-        {
-            // Todo: Lägg till att man kan gissa på hela ordet
-
-            var falseInput = true;
-            do
-            {
-                MyServer.Broadcast("");
-                //MyServer.Broadcast($"Player.Name's tur. Vilken bokstav vill du gissa på ?");
-
-
-
-                if (guess.Length != 1)
-                {
-                    //Todo: Broadcasta till spelaren som gissade. 
-                    Console.WriteLine("Du får bara gissa på en bokstav");
-                }
-                //Todo: Jämför med bokstäver som redan är gissade - Isåfall får man Fel.
-                //else if (guess == HiddenWord.FirstOrDefault(c => c.ToString().Equals(guess)).ToString())
-                //{
-                //    Console.WriteLine("Du har redan gissat på denna bokstav");
-                //}
-                else
-                {
-                    falseInput = false;
-                }
-
-            } while (falseInput);
-            var IsCorrect = ValidateGuess(guess[0]);
-            DrawGame();
-            return guess[0];
         }
     }
 }

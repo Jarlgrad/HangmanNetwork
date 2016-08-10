@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Hangman
 {
-    public class GameWords
+    public class PlayerInput
     {
-        public string Word { get; set; }
+        public string Name { get; set; }
+        public char Guess { get; set; }
     }
 }
