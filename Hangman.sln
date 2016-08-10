@@ -5,9 +5,9 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangman", "Hangman\Hangman.csproj", "{557CFF84-2BBE-4CD0-A394-9015981087DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking_server", "..\..\..\Desktop\Networking\Networking_server\Networking_server.csproj", "{EE728B29-0788-4732-A368-2C8DB885465A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking_client", "Networking_client\Networking_client.csproj", "{04C2FBC7-DD70-467D-874B-054852B0A7F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking_client", "..\..\..\Desktop\Networking\Networking_client\Networking_client.csproj", "{04C2FBC7-DD70-467D-874B-054852B0A7F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking_server", "Networking_server\Networking_server.csproj", "{EE728B29-0788-4732-A368-2C8DB885465A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{557CFF84-2BBE-4CD0-A394-9015981087DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{557CFF84-2BBE-4CD0-A394-9015981087DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{557CFF84-2BBE-4CD0-A394-9015981087DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE728B29-0788-4732-A368-2C8DB885465A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE728B29-0788-4732-A368-2C8DB885465A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE728B29-0788-4732-A368-2C8DB885465A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE728B29-0788-4732-A368-2C8DB885465A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{04C2FBC7-DD70-467D-874B-054852B0A7F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{04C2FBC7-DD70-467D-874B-054852B0A7F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04C2FBC7-DD70-467D-874B-054852B0A7F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04C2FBC7-DD70-467D-874B-054852B0A7F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE728B29-0788-4732-A368-2C8DB885465A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE728B29-0788-4732-A368-2C8DB885465A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE728B29-0788-4732-A368-2C8DB885465A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE728B29-0788-4732-A368-2C8DB885465A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

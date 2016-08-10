@@ -84,16 +84,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Desktop\Networking\Networking_client\Networking_client.csproj">
-      <Project>{04c2fbc7-dd70-467d-874b-054852b0a7f6}</Project>
-      <Name>Networking_client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Desktop\Networking\Networking_server\Networking_server.csproj">
-      <Project>{ee728b29-0788-4732-a368-2c8db885465a}</Project>
-      <Name>Networking_server</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
