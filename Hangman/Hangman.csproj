@@ -64,7 +64,8 @@
   <ItemGroup>
     <Compile Include="Game.cs" />
     <Compile Include="GameWords.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="Network\ClientHandler.cs" />
+    <Compile Include="Network\Server.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

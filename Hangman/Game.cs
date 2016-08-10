@@ -14,38 +14,41 @@ namespace Hangman
         public string KeyWord { get; set; }
         public List<char> HiddenWord { get; set; }
         public List<char> WrongGuesses { get; set; }
+        public List<GameWords> Dictionary { get; set; }
+
+        public Game()
+        {
+            Dictionary = new List<GameWords>();
+            HiddenWord = new List<char>();
+            WrongGuesses = new List<char>();
+            Dictionary = GetDictionary();
+            KeyWord = SetKeyWord();
+
+        }
 
         public void StartGame(List<Player> players)
         {
-            List<GameWords> dictionary = GetDictionary(); // Todo: ska bara köras en gång
-            PlayGame(dictionary, players);
+            // Todo: ska bara köras en gång
+            PlayGame(players);
         }
 
-        private void PlayGame(List<GameWords> dictionary, List<Player> players)
+        private void PlayGame(List<Player> players)
         {
             int playRounds = 0;
             do
             {
-                KeyWord = SetKeyWord(dictionary);
-                HiddenWord = new List<char>();
-                WrongGuesses = new List<char>();
+
                 SetHiddenWord(KeyWord);
                 Play(players);
                 playRounds++;
             } while (playRounds < 3);
         }
 
-        private string SetKeyWord(List<GameWords> dictionary)
+        private string SetKeyWord()
         {
-
             // Todo: Vid Nytt spel Ska denna metod ta fram ett nytt ord! 
-
             Random rand = new Random();
-
-            var keyword = dictionary.ElementAt(rand.Next(0, dictionary.Count));
-
-
-
+            var keyword = Dictionary.ElementAt(rand.Next(0, Dictionary.Count));
             return keyword.Word;
         }
 
@@ -102,6 +105,7 @@ namespace Hangman
         /// <param name="players"></param>
         public void Play(List<Player> players)
         {
+            //s=testvariabel
             string s = "";
             int i = 0;
             var sb = "";
@@ -116,14 +120,15 @@ namespace Hangman
 
                     if (IsCorrect)
                     {
-                        Console.WriteLine($"{item.PlayerName} gissade rätt!");
+                        Console.WriteLine($"{item.Name} gissade rätt!");
                     }
                     else
                     {
-                        Console.WriteLine($"{item.PlayerName} gissade fel!");
+                        Console.WriteLine($"{item.Name} gissade fel!");
                         WrongGuesses.Add(guess);
                     }
 
+                    //Omvandlar listan av Char till en textsträng
                     var strb = new StringBuilder();
                     foreach (var letter in HiddenWord)
                     {
@@ -135,7 +140,7 @@ namespace Hangman
                     {
                         item.WonGame = true;
                         item.Wins++;
-                        s = item.PlayerName;
+                        s = item.Name;
                         i = item.Wins;
                     }
                     if (item.WonGame)
@@ -151,12 +156,14 @@ namespace Hangman
         /// <summary>
         /// Ritar spelplanen
         /// </summary>
-        private void DrawGame()
+        private string DrawGame()
         {
+            string tempStr = string.Empty;
             foreach (var item in HiddenWord)
             {
-                Console.Write(item);
+                tempStr += item;
             }
+            return tempStr;
         }
 
         /// <summary>
@@ -175,7 +182,7 @@ namespace Hangman
                 Console.Clear();
                 DrawGame();
                 Console.WriteLine("");
-                Console.WriteLine($"{item.PlayerName}'s tur. Vilken bokstav vill du gissa på ?");
+                Console.WriteLine($"{item.Name}'s tur. Vilken bokstav vill du gissa på ?");
 
                 guess = Console.ReadLine();
 

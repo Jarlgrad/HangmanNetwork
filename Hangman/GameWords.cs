@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hangman
 {
-    class GameWords
+    public class GameWords
     {
         public string Word { get; set; }
         //List<GameWords> dictionary = new List<GameWords>();

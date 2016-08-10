@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hangman
@@ -10,13 +11,10 @@ namespace Hangman
     {
         static void Main(string[] args)
         {
-            Game newGame = new Game();
-
-            newGame.StartGame( new List<Player>
-            {
-                new Player { PlayerName = "Player 1" },
-                new Player { PlayerName = "Player 2" }
-            });
+            Server myServer = new Server();
+            Thread serverThread = new Thread(myServer.Run);
+            serverThread.Start();
+            serverThread.Join();
         }
     }
 }

@@ -7,17 +7,19 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static Networking_server.Program;
 
-namespace Networking_server
+namespace Hangman
 {
-    public class ClientHandler
+    public class Player
     {
         public TcpClient tcpclient;
         private Server myServer;
-        public string Name { get; set; }
 
-        public ClientHandler(TcpClient c, Server server)
+        public string Name { get; set; }
+        public bool WonGame { get; set; }
+        public int Wins { get; set; }
+
+        public Player(TcpClient c, Server server)
         {
             tcpclient = c;
             this.myServer = server;
