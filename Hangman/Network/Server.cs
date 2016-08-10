@@ -12,15 +12,14 @@ namespace Hangman
 {
     public class Server
     {
-        public List<Player> players = new List<Player>();
+        public List<PlayerHandler> players = new List<PlayerHandler>();
         bool _gameOn = false;
 
         public void Run()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, 5000);
             Console.WriteLine("Server up and running, waiting for players...");
-            // Todo: 
-            Game game = new Game();
+            Game game = new Game(this);
 
             try
             {
@@ -29,7 +28,7 @@ namespace Hangman
                 while (true)
                 {
                     TcpClient c = listener.AcceptTcpClient();
-                    Player newClient = new Player(c, this);
+                    PlayerHandler newClient = new PlayerHandler(c, this, game.GuessQueue);
                     players.Add(newClient);
 
                     Thread clientThread = new Thread(newClient.Run);
@@ -54,23 +53,24 @@ namespace Hangman
         public void Broadcast(string message)
         {
 
-            foreach (Player tmpClient in players)
+            foreach (PlayerHandler tmpClient in players)
             {
-                    NetworkStream n = tmpClient.tcpclient.GetStream();
-                    BinaryWriter w = new BinaryWriter(n);
-                    w.Write($"{message}");
-                    w.Flush();
+                NetworkStream n = tmpClient.tcpclient.GetStream();
+                BinaryWriter w = new BinaryWriter(n);
+                w.Write($"{message}");
+                w.Flush();
             }
         }
 
-        public void Broadcast(Player client, string message)
+        public void Broadcast(PlayerHandler client, string message)
         {
-            foreach (Player tmpClient in players)
+            foreach (PlayerHandler tmpClient in players)
             {
                 if (tmpClient != client)
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
+
                     w.Write($"{client.Name}: {message}");
                     w.Flush();
                 }
@@ -84,9 +84,9 @@ namespace Hangman
             }
         }
 
-        public void BroadcastPrivate(Player client, string message, string clientRecieving)
+        public void BroadcastPrivate(PlayerHandler client, string message, string clientRecieving)
         {
-            foreach (Player tmpClient in players)
+            foreach (PlayerHandler tmpClient in players)
             {
                 if (tmpClient.Name.ToLower() == clientRecieving.ToLower())
                 {
@@ -105,7 +105,7 @@ namespace Hangman
             }
         }
 
-        public void DisconnectClient(Player client)
+        public void DisconnectClient(PlayerHandler client)
         {
             players.Remove(client);
             Console.WriteLine($"{client.Name} has left the building...");
@@ -113,3 +113,4 @@ namespace Hangman
         }
     }
 }
+

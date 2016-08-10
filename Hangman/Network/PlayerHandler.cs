@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hangman
 {
-    public class Player
+    public class PlayerHandler
     {
         public TcpClient tcpclient;
         private Server myServer;
@@ -18,11 +18,14 @@ namespace Hangman
         public string Name { get; set; }
         public bool WonGame { get; set; }
         public int Wins { get; set; }
+        public Queue<char> GuessQueue { get; set; }
 
-        public Player(TcpClient c, Server server)
+
+        public PlayerHandler(TcpClient c, Server server, Queue<char>guessQueue)
         {
             tcpclient = c;
             this.myServer = server;
+            GuessQueue = guessQueue;
         }
 
         public void Run()
@@ -44,6 +47,7 @@ namespace Hangman
 
                     NetworkStream n = tcpclient.GetStream();
                     message = new BinaryReader(n).ReadString();
+                    
                     if (message.Split(' ')[0].ToLower().Equals("pm"))
                     {
                         var msg = "";
@@ -55,6 +59,10 @@ namespace Hangman
                             }
                         }
                         myServer.BroadcastPrivate(this, msg, message.Split(' ')[1]);
+                    }
+                    else if (message.Length == 1)
+                    {
+                       GuessQueue.Enqueue(message[0]);
                     }
                     else
                     {
@@ -84,6 +92,5 @@ namespace Hangman
             w.Flush();
 
         }
-
     }
 }
