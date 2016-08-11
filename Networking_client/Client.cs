@@ -74,53 +74,51 @@ namespace Networking_client
             {
                 NetworkStream n = client.GetStream();
 
+                // Todo: Ge meddelande id
                 while (!message.Equals("quit"))
                 {
-                    // Todo: Ge meddelande id
                     message = Console.ReadLine();
                     BinaryWriter w = new BinaryWriter(n);
-                    while (!message.Equals("quit"))
+
+                    //message = new BinaryReader(n).ReadString();
+
+                    // Todo: Privata meddelanden och byta namn, om det finns tid
+                    //if (message.Split(' ')[0].ToLower().Equals("pm"))
+                    //{
+                    //    var msg = "";
+                    //    for (int i = 0; i < message.Split(' ').Length; i++)
+                    //    {
+                    //        if (i > 1)
+                    //        {
+                    //            msg += message.Split(' ')[i] + " ";
+                    //        }
+                    //    }
+                    //    myServer.BroadcastPrivate(this, msg, message.Split(' ')[1]);
+                    //}
+                    //else if (message.Split(' ')[0].ToLower().Equals("name"))
+                    //{
+                    //    VCTProtocol tmpInput = new VCTProtocol { Player = this, Message = $"{this.Name} changed their name to {message.Split(' ')[1]}", Version = "0.3" };
+                    //    this.Name = message.Split(' ')[1];
+                    //    var tmpJson = JsonConvert.SerializeObject(tmpInput);
+
+                    //    myServer.Broadcast(this, message);
+
+                    //}
+
+                    if (message.Length == 1)
                     {
-                        //message = new BinaryReader(n).ReadString();
-                        
-                        // Todo: Privata meddelanden och byta namn, om det finns tid
-                        //if (message.Split(' ')[0].ToLower().Equals("pm"))
-                        //{
-                        //    var msg = "";
-                        //    for (int i = 0; i < message.Split(' ').Length; i++)
-                        //    {
-                        //        if (i > 1)
-                        //        {
-                        //            msg += message.Split(' ')[i] + " ";
-                        //        }
-                        //    }
-                        //    myServer.BroadcastPrivate(this, msg, message.Split(' ')[1]);
-                        //}
-                        //else if (message.Split(' ')[0].ToLower().Equals("name"))
-                        //{
-                        //    VCTProtocol tmpInput = new VCTProtocol { Player = this, Message = $"{this.Name} changed their name to {message.Split(' ')[1]}", Version = "0.3" };
-                        //    this.Name = message.Split(' ')[1];
-                        //    var tmpJson = JsonConvert.SerializeObject(tmpInput);
-
-                        //    myServer.Broadcast(this, message);
-
-                        //}
-
-                        if (message.Length == 1)
-                        {
-                            VCTProtocol tmpInput = new VCTProtocol { Guess = message[0], Version = Version };
-                            var tmpJson = JsonConvert.SerializeObject(tmpInput);
-                            w.Write(tmpJson);
-                        }
-                        else
-                        {
-                            VCTProtocol tmpInput = new VCTProtocol { Message = message, Version = Version };
-                            var tmpJson = JsonConvert.SerializeObject(tmpInput);
-                            w.Write(tmpJson);
-                        }
-                        Console.WriteLine(message);
+                        VCTProtocol tmpInput = new VCTProtocol { Guess = message[0], Version = Version };
+                        var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                        w.Write(tmpJson);
+                        w.Flush();
                     }
-                    w.Flush();
+                    else
+                    {
+                        VCTProtocol tmpInput = new VCTProtocol { Message = message, Version = Version };
+                        var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                        w.Write(tmpJson);
+                        w.Flush();
+                    }
                 }
 
                 client.Close();

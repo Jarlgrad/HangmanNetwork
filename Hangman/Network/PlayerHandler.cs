@@ -31,24 +31,27 @@ namespace Hangman
 
         public void Run()
         {
+            bool firstLogin = true;
+
+            while (firstLogin)
+            {
+                SetUserName();
+                firstLogin = false;
+            }
+
             try
             {
                 string message = "";
-                bool firstLogin = true;
 
-                while (firstLogin)
-                {
-                    SetUserName();
-                    firstLogin = false;
-                }
 
 
                 while (!message.Equals("quit"))
                 {
                     NetworkStream n = tcpclient.GetStream();
                     message = new BinaryReader(n).ReadString();
-
+                    message = Console.ReadLine();
                     // Todo: Privata meddelanden och byta namn, om det finns tid
+                    //
                     //if (message.Split(' ')[0].ToLower().Equals("pm"))
                     //{
                     //    var msg = "";
@@ -101,11 +104,11 @@ namespace Hangman
             w.Write("Hello new user. Please set a username: ");
             w.Flush();
             string username = new BinaryReader(n).ReadString();
-
             VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(username);
-
+            Console.WriteLine(tmpInput.Message);
+            tmpInput.Player = this;
             Name = tmpInput.Message;
-            myServer.Broadcast(tmpInput);
+            myServer.BroadcastNewUser(tmpInput);
         }
     }
 }
