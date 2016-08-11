@@ -15,7 +15,7 @@ namespace Networking_client
     class Client
     {
         private TcpClient client;
-        const string Version = "0.1";
+        public VCTProtocol ClientVCT { get; set; }
 
         public void Start()
         {
@@ -36,6 +36,7 @@ namespace Networking_client
 
             client = new TcpClient("192.168.220.92", 5000);
             //client = new TcpClient(localIP, 5000);
+            ClientVCT = new VCTProtocol { Version = "0.1" };
 
             Thread listenerThread = new Thread(Send);
             listenerThread.Start();
@@ -57,7 +58,14 @@ namespace Networking_client
                 {
                     NetworkStream n = client.GetStream();
                     message = new BinaryReader(n).ReadString();
-                    Console.WriteLine(message);
+                    ClientVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
+
+                    // FÖRSÖKER kontrollera ifall bosktaven redan gissats på en gång! 
+                    if (ClientVCT.Guess != '\0')
+                    {
+                        Console.WriteLine(ClientVCT.Message);
+                    }
+                    Console.WriteLine(ClientVCT.Message);
                 }
             }
             catch (Exception ex)
@@ -107,15 +115,23 @@ namespace Networking_client
 
                     if (message.Length == 1)
                     {
-                        VCTProtocol tmpInput = new VCTProtocol { Guess = message[0], Version = Version };
-                        var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                        //Todo: för
+                        //foreach (var item in tmpInput.AllGuesses)
+                        //{
+                        //    if (tmpInput.Guess.Equals(item))
+                        //    {
+
+                        //    }
+                        //}
+                        ClientVCT.Guess = message[0];
+                        var tmpJson = JsonConvert.SerializeObject(ClientVCT);
                         w.Write(tmpJson);
                         w.Flush();
                     }
                     else
                     {
-                        VCTProtocol tmpInput = new VCTProtocol { Message = message, Version = Version };
-                        var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                        ClientVCT.Message = message;
+                        var tmpJson = JsonConvert.SerializeObject(ClientVCT);
                         w.Write(tmpJson);
                         w.Flush();
                     }

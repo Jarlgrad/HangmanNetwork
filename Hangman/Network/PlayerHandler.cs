@@ -48,8 +48,12 @@ namespace Hangman
                 while (!message.Equals("quit"))
                 {
                     NetworkStream n = tcpclient.GetStream();
+
                     message = new BinaryReader(n).ReadString();
-                    message = Console.ReadLine();
+                    var tempVCT = new VCTProtocol();
+                    tempVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                    tempVCT.Player = this;
+
                     // Todo: Privata meddelanden och byta namn, om det finns tid
                     //
                     //if (message.Split(' ')[0].ToLower().Equals("pm"))
@@ -73,19 +77,17 @@ namespace Hangman
                     //    myServer.Broadcast(this, message);
 
                     //}
-                    if (message.Length == 1)
+
+                    if (tempVCT.Guess != '\0')
                     {
-                        VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
-                        tmpInput.Player = this;
-                        GuessQueue.Enqueue(tmpInput);
+                        GuessQueue.Enqueue(tempVCT);
+                        Console.WriteLine(tempVCT);
                     }
                     else
                     {
-                        VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
-                        tmpInput.Player = this;
-                        myServer.Broadcast(tmpInput);
+                        myServer.Broadcast(tempVCT);
+                        Console.WriteLine(tempVCT);
                     }
-                    Console.WriteLine(message);
                 }
 
                 myServer.DisconnectClient(this);
@@ -93,22 +95,27 @@ namespace Hangman
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message + "i metoden Run i PlayerHandler");
             }
         }
 
         public void SetUserName()
         {
+            Console.WriteLine("Nu välkomnas en ny användare");
             NetworkStream n = tcpclient.GetStream();
             BinaryWriter w = new BinaryWriter(n);
-            w.Write("Hello new user. Please set a username: ");
+            var tempVCT = new VCTProtocol();
+            tempVCT.Message = "Välkommen, sätt ett användarnamn";
+            var tmpMsg = JsonConvert.SerializeObject(tempVCT);
+            w.Write(tmpMsg);
             w.Flush();
+            Console.WriteLine("Nu väntar servern in ett användarnamn");
             string username = new BinaryReader(n).ReadString();
-            VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(username);
-            Console.WriteLine(tmpInput.Message);
-            tmpInput.Player = this;
-            Name = tmpInput.Message;
-            myServer.BroadcastNewUser(tmpInput);
+            tempVCT = JsonConvert.DeserializeObject<VCTProtocol>(username);
+            this.Name = tempVCT.Message;
+            tempVCT.Player = this;
+            Console.WriteLine($"User {tempVCT.Player.Name} set username");
+            myServer.BroadcastNewUser(tempVCT);
         }
     }
 }

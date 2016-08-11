@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,6 +34,8 @@ namespace Hangman
 
                     Thread clientThread = new Thread(newClient.Run);
                     clientThread.Start();
+                    // Sätter trådens Name.Property
+                    //Thread.CurrentThread.Name = "clientHandlerThread";
 
                     if (players.Count > 1 && _gameOn == false)
                     {
@@ -43,7 +46,7 @@ namespace Hangman
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message + "I metoden Run i Server");
             }
             finally
             {
@@ -51,19 +54,40 @@ namespace Hangman
                     listener.Stop();
             }
         }
-        public void Broadcast(VCTProtocol tmpInput)
+        public void BroadcastNewUser(VCTProtocol tmpInput)
         {
+            VCTProtocol tmpVCT = new VCTProtocol();
+            var tmpString = $"{tmpInput.Player.Name} joined the room.";
+            tmpInput.Message = tmpString;
+            var tmpJson = JsonConvert.SerializeObject(tmpInput);
 
             foreach (PlayerHandler tmpClient in players)
             {
                 NetworkStream n = tmpClient.tcpclient.GetStream();
                 BinaryWriter w = new BinaryWriter(n);
-                w.Write($"{tmpInput.Message}");
+                w.Write(tmpJson);
+                if (players.Count() == 1)
+                {
+                    tmpVCT.Message = "You are the first, waiting for more players...";
+                    w.Write(JsonConvert.SerializeObject(tmpVCT));
+                }
                 w.Flush();
             }
         }
 
-        public void BroadcastNewUser(VCTProtocol tmpInput)
+        public void ServerBroadcast(VCTProtocol tmpInput)
+        {
+            foreach (PlayerHandler tmpClient in players)
+            {
+                NetworkStream n = tmpClient.tcpclient.GetStream();
+                BinaryWriter w = new BinaryWriter(n);
+                var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                w.Write(tmpJson);
+                w.Flush();
+            }
+        }
+
+        public void Broadcast(VCTProtocol tmpInput)
         {
             foreach (PlayerHandler tmpClient in players)
             {
@@ -73,13 +97,6 @@ namespace Hangman
                     BinaryWriter w = new BinaryWriter(n);
 
                     w.Write($"{tmpInput.Player.Name}: {tmpInput.Message}");
-                    w.Flush();
-                }
-                else if (players.Count() == 1)
-                {
-                    NetworkStream n = tmpClient.tcpclient.GetStream();
-                    BinaryWriter w = new BinaryWriter(n);
-                    w.Write("You are the first, waiting for more players...");
                     w.Flush();
                 }
             }

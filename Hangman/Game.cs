@@ -50,8 +50,10 @@ namespace Hangman
         {
             // Todo: ska bara köras en gång
             SetHiddenWord(KeyWord);
-            Thread clientThread = new Thread(GetGuessQueue);
-            clientThread.Start();
+            Thread queueThread = new Thread(GetGuessQueue);
+            queueThread.Start();
+            Thread.CurrentThread.Name = "queueThread";
+
         }
 
         /// <summary>
@@ -72,6 +74,7 @@ namespace Hangman
         /// <returns>List<GameWords></returns>
         private List<GameWords> GetDictionary()
         {
+            Console.WriteLine("Här börjar GetDictionary-metoden");
             // Måste sätta ny directory!! 
             StreamReader readFile = new StreamReader(@"C:\Users\Administrator\Source\Repos\HangmanNetwork\Hangman\Ordlista.txt");
             var tmpWords = readFile.ReadLine();
@@ -101,6 +104,7 @@ namespace Hangman
         /// <returns>HiddenWord med de rätt gissade bokstäverna</returns>
         public bool ValidateGuess(char c)
         {
+            Console.WriteLine("Här börjar ValidateGuess-metoden");
             bool guessIsCorrect = false;
             for (int i = 0; i < KeyWord.Length; i++)
             {
@@ -119,22 +123,28 @@ namespace Hangman
         /// <param name="players"></param>
         public void Play(VCTProtocol tmpInput)
         {
+            Console.WriteLine("Här börjar Play-metoden");
             var sb = "";
 
             //Console.Clear();
             var IsCorrect = ValidateGuess(tmpInput.Guess);
 
+
             if (IsCorrect)
             {
                 tmpInput.Message = $"{tmpInput.Player.Name} gissade rätt!";
-                MyServer.Broadcast(tmpInput);
+                MyServer.ServerBroadcast(tmpInput);
+                tmpInput.AllGuesses.Add(tmpInput.Guess);
+                Console.WriteLine("Nu har gisnningen lagts till i AllGuesses");
             }
             else
             {
 
                 tmpInput.Message = $"{tmpInput.Player.Name} gissade fel!";
-                MyServer.Broadcast(tmpInput);
-                WrongGuesses.Add(tmpInput.Guess);
+                MyServer.ServerBroadcast(tmpInput);
+                tmpInput.IncorrectGuesses.Add(tmpInput.Guess);
+                tmpInput.AllGuesses.Add(tmpInput.Guess);
+                Console.WriteLine("Nu har gissningen lagts till i AllGuesses och IncorrectGuesses");
             }
 
             //Omvandlar listan av Char till en textsträng
@@ -145,15 +155,15 @@ namespace Hangman
             }
             sb = strb.ToString();
 
-            MyServer.Broadcast(DrawGame());
+            MyServer.ServerBroadcast(DrawGame());
 
             // Todo: Lägg till möjligheter att ändra antal gissningar vid nytt spel. 
             if (sb == KeyWord || WrongGuesses.Count > 10)
             {
                 RoundOver = true;
                 VCTProtocol tmpVCT = new VCTProtocol();
-                tmpVCT.Message = "Game Over this.player won the game ()";
-                MyServer.Broadcast(tmpVCT);
+                tmpVCT.Message = $"Game Over {tmpInput.Player.Name} won the game ()";
+                MyServer.ServerBroadcast(tmpVCT);
             }
         }
 
@@ -162,6 +172,7 @@ namespace Hangman
         /// </summary>
         private VCTProtocol DrawGame()
         {
+            Console.WriteLine("Här börjar DrawGame-metoden");
             // Todo: Sätt fler properties på DrawGame som ett protokoll. Förenklar felsökning.
             VCTProtocol tmpVCT = new VCTProtocol();
             string tempStr = string.Empty;
