@@ -19,10 +19,10 @@ namespace Hangman
         public string Name { get; set; }
         public bool WonGame { get; set; }
         public int Wins { get; set; }
-        public Queue<char> GuessQueue { get; set; }
+        public Queue<VCTProtocol> GuessQueue { get; set; }
 
 
-        public PlayerHandler(TcpClient c, Server server, Queue<char> guessQueue)
+        public PlayerHandler(TcpClient c, Server server, Queue<VCTProtocol> guessQueue)
         {
             tcpclient = c;
             this.myServer = server;
@@ -46,31 +46,41 @@ namespace Hangman
                 while (!message.Equals("quit"))
                 {
                     NetworkStream n = tcpclient.GetStream();
-                    GameWords words = new GameWords();
                     message = new BinaryReader(n).ReadString();
 
-                    if (message.Split(' ')[0].ToLower().Equals("pm"))
+                    // Todo: Privata meddelanden och byta namn, om det finns tid
+                    //if (message.Split(' ')[0].ToLower().Equals("pm"))
+                    //{
+                    //    var msg = "";
+                    //    for (int i = 0; i < message.Split(' ').Length; i++)
+                    //    {
+                    //        if (i > 1)
+                    //        {
+                    //            msg += message.Split(' ')[i] + " ";
+                    //        }
+                    //    }
+                    //    myServer.BroadcastPrivate(this, msg, message.Split(' ')[1]);
+                    //}
+                    //else if (message.Split(' ')[0].ToLower().Equals("name"))
+                    //{
+                    //    VCTProtocol tmpInput = new VCTProtocol { Player = this, Message=$"{this.Name} changed their name to {message.Split(' ')[1]}", Version = "0.3" };
+                    //    this.Name = message.Split(' ')[1];
+                    //    var tmpJson = JsonConvert.SerializeObject(tmpInput);
+
+                    //    myServer.Broadcast(this, message);
+
+                    //}
+                    if (message.Length == 1)
                     {
-                        var msg = "";
-                        for (int i = 0; i < message.Split(' ').Length; i++)
-                        {
-                            if (i > 1)
-                            {
-                                msg += message.Split(' ')[i] + " ";
-                            }
-                        }
-                        myServer.BroadcastPrivate(this, msg, message.Split(' ')[1]);
-                    }
-                    else if (message.Length == 1)
-                    {
-                        // Todo: Jsonkonvertering
-                        //PlayerInput tmpInput = new PlayerInput { Name = this.Name, Guess = message[0] };
-                        //var tmpMsg = JsonConvert.SerializeObject(tmpInput);
-                        GuessQueue.Enqueue(message[0]);
+                        VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                        tmpInput.Player = this;
+                        GuessQueue.Enqueue(tmpInput);
                     }
                     else
                     {
-                        myServer.Broadcast(this, message);
+                        VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                        tmpInput.Player = this;
+                        myServer.Broadcast(tmpInput);
                     }
                     Console.WriteLine(message);
                 }
@@ -89,10 +99,13 @@ namespace Hangman
             NetworkStream n = tcpclient.GetStream();
             BinaryWriter w = new BinaryWriter(n);
             w.Write("Hello new user. Please set a username: ");
-            string username = new BinaryReader(n).ReadString();
-            Name = username;
-            myServer.Broadcast(this, $"has joined the game!");
             w.Flush();
+            string username = new BinaryReader(n).ReadString();
+
+            VCTProtocol tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(username);
+
+            Name = tmpInput.Message;
+            myServer.Broadcast(tmpInput);
         }
     }
 }

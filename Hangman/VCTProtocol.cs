@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace Hangman
 {
-    public class PlayerInput
+    public class VCTProtocol
     {
-        public string Name { get; set; }
+        public string Version { get; set; }
+        public PlayerHandler Player { get; set; }
         public char Guess { get; set; }
+        public string Message { get; set; }
+
     }
 }

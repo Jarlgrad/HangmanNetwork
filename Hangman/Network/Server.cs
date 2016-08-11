@@ -37,6 +37,7 @@ namespace Hangman
                     if (players.Count > 1 && _gameOn == false)
                     {
                         game.StartGame();
+                        _gameOn = true;
                     }
                 }
             }
@@ -50,35 +51,35 @@ namespace Hangman
                     listener.Stop();
             }
         }
-        public void Broadcast(string message)
+        public void Broadcast(VCTProtocol tmpInput)
         {
 
             foreach (PlayerHandler tmpClient in players)
             {
                 NetworkStream n = tmpClient.tcpclient.GetStream();
                 BinaryWriter w = new BinaryWriter(n);
-                w.Write($"{message}");
+                w.Write($"{tmpInput.Message}");
                 w.Flush();
             }
         }
 
-        public void Broadcast(PlayerHandler client, string message)
+        public void BroadcastNewUser(VCTProtocol tmpInput)
         {
             foreach (PlayerHandler tmpClient in players)
             {
-                if (tmpClient != client)
+                if (tmpClient.Name != tmpInput.Player.Name)
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
 
-                    w.Write($"{client.Name}: {message}");
+                    w.Write($"{tmpInput.Player.Name}: {tmpInput.Message}");
                     w.Flush();
                 }
                 else if (players.Count() == 1)
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
-                    w.Write("Sorry, you are alone...");
+                    w.Write("You are the first, waiting for more players...");
                     w.Flush();
                 }
             }
@@ -109,7 +110,11 @@ namespace Hangman
         {
             players.Remove(client);
             Console.WriteLine($"{client.Name} has left the building...");
-            Broadcast(client, $"{client.Name} has left the building...");
+            VCTProtocol tmpVCT = new VCTProtocol
+            {
+                Message = $"{client.Name} har lämnat spelet"
+            };
+            Broadcast(tmpVCT);
         }
     }
 }
