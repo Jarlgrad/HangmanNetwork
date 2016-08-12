@@ -14,6 +14,8 @@ namespace Hangman
         public string Message { get; set; }
         public List<char> AllGuesses { get; set; }
         public List<char> IncorrectGuesses { get; set; }
+        public List<string> Players { get; set; }
+        public string GameBoard { get; set; }
 
     }
 }

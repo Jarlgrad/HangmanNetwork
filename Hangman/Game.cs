@@ -20,6 +20,8 @@ namespace Hangman
         public Server MyServer { get; set; }
         public Queue<VCTProtocol> GuessQueue { get; set; }
         public bool RoundOver { get; set; }
+        public List<string> PlayersToClients { get; set; }
+        public List<char> AllGuesses { get; set; }
 
 
         public Game(Server myServer)
@@ -27,6 +29,7 @@ namespace Hangman
             Dictionary = new List<GameWords>();
             HiddenWord = new List<char>();
             WrongGuesses = new List<char>();
+            AllGuesses = new List<char>();
             GuessQueue = new Queue<VCTProtocol>();
             Dictionary = GetDictionary();
             KeyWord = SetKeyWord();
@@ -54,7 +57,7 @@ namespace Hangman
             queueThread.Start();
             var tmpStr = DrawGame();
             VCTProtocol tmpVCT = new VCTProtocol();
-            tmpVCT.Message = $"Välkommen till spelet {Environment.NewLine} {tmpStr.Message}";
+            tmpVCT.Message = $"Välkommen till spelet {tmpVCT.Player.Name}";
             MyServer.ServerBroadcast(tmpVCT);
             Thread.CurrentThread.Name = "queueThread";
 
@@ -133,6 +136,17 @@ namespace Hangman
             //Console.Clear();
             var IsCorrect = ValidateGuess(tmpInput.Guess);
 
+            PlayersToClients = new List<string>();
+            foreach (var player in MyServer.players)
+            {
+                PlayersToClients.Add(player.PlayerData.Player.Name);
+            }
+            tmpInput.Players = PlayersToClients;
+
+            AllGuesses.Add(tmpInput.Guess);
+            tmpInput.AllGuesses = AllGuesses;
+            tmpInput.GameBoard = DrawGame();
+
 
             if (IsCorrect)
             {
@@ -145,9 +159,9 @@ namespace Hangman
             {
 
                 tmpInput.Message = $"{tmpInput.Player.Name} gissade fel!";
+                WrongGuesses.Add(tmpInput.Guess);
+                tmpInput.IncorrectGuesses = WrongGuesses;
                 MyServer.ServerBroadcast(tmpInput);
-                tmpInput.IncorrectGuesses.Add(tmpInput.Guess);
-                tmpInput.AllGuesses.Add(tmpInput.Guess);
                 Console.WriteLine("Nu har gissningen lagts till i AllGuesses och IncorrectGuesses");
             }
 
@@ -158,8 +172,6 @@ namespace Hangman
                 strb.Append(letter);
             }
             sb = strb.ToString();
-
-            MyServer.ServerBroadcast(DrawGame());
 
             // Todo: Lägg till möjligheter att ändra antal gissningar vid nytt spel. 
             if (sb == KeyWord || WrongGuesses.Count > 10)
@@ -174,18 +186,20 @@ namespace Hangman
         /// <summary>
         /// Ritar spelplanen
         /// </summary>
-        private VCTProtocol DrawGame()
+        private string DrawGame()
         {
             Console.WriteLine("Här börjar DrawGame-metoden");
+
             // Todo: Sätt fler properties på DrawGame som ett protokoll. Förenklar felsökning.
-            VCTProtocol tmpVCT = new VCTProtocol();
+            //VCTProtocol tmpVCT = new VCTProtocol();
             string tempStr = string.Empty;
             foreach (var item in HiddenWord)
             {
                 tempStr += item;
             }
-            tmpVCT.Message = tempStr;
-            return tmpVCT;
+            //tmpVCT.GameBoard = tempStr;
+            //tmpVCT.Players = PlayersToClients;
+            return tempStr;
         }
     }
 }

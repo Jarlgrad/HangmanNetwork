@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Networking_client
 {
-    class ClientPlayer
+    public class Player
     {
         public string Name { get; set; }
         public bool WonGame { get; set; }

@@ -78,6 +78,7 @@ namespace Hangman
 
         public void ServerBroadcast(VCTProtocol tmpInput)
         {
+            Console.WriteLine("Nu skickas meddelande till alla");
             foreach (PlayerHandler tmpClient in players)
             {
                 NetworkStream n = tmpClient.tcpclient.GetStream();
