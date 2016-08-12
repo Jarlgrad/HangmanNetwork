@@ -18,33 +18,26 @@ namespace Hangman
         public VCTProtocol PlayerData { get; set; }
 
 
-        public Queue<VCTProtocol> GuessQueue { get; set; }
 
 
-        public PlayerHandler(TcpClient c, Server server, Queue<VCTProtocol> guessQueue)
+        public PlayerHandler(TcpClient c, Server server)
         {
             tcpclient = c;
             this.myServer = server;
-            GuessQueue = guessQueue;
             PlayerData = new VCTProtocol { IncorrectGuesses = new List<char>(), AllGuesses = new List<char>(), Player = new Player() };
         }
 
         public void Run()
         {
             bool firstLogin = true;
-
             while (firstLogin)
             {
                 SetUserName();
                 firstLogin = false;
             }
-
             try
             {
                 string message = "";
-
-
-
                 while (!message.Equals("quit"))
                 {
                     NetworkStream n = tcpclient.GetStream();
@@ -53,9 +46,13 @@ namespace Hangman
                     var tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
                     PlayerData = tmpInput;
 
-                    if (tmpInput.Message.ToLower() == "start")
+                    if (tmpInput.Message.ToLower() == "start" && tmpInput.GameOn == false)
                     {
                         myServer.StartGame();
+                    }
+                    else if (tmpInput.GameOn == true)
+                    {
+                        myServer.ServerBroadcast(tmpInput);
                     }
 
                     // Todo: Privata meddelanden och byta namn, om det finns tid
@@ -84,11 +81,11 @@ namespace Hangman
 
                     if (tmpInput.Guess != '\0')
                     {
-                        GuessQueue.Enqueue(PlayerData);
+                        myServer.GuessQueue.Enqueue(PlayerData);
                     }
                     else
                     {
-                        myServer.ServerBroadcast(PlayerData);
+                        myServer.Broadcast(PlayerData);
                     }
                 }
 

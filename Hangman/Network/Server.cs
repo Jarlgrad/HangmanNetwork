@@ -14,15 +14,16 @@ namespace Hangman
     public class Server
     {
         public List<PlayerHandler> players = new List<PlayerHandler>();
-        bool _gameOn = false;
         Game game;
+        public Queue<VCTProtocol> GuessQueue { get; set; }
+
         public string Name { get; set; }
 
         public void Run()
         {
+            GuessQueue = new Queue<VCTProtocol>();
             TcpListener listener = new TcpListener(IPAddress.Any, 5000);
             Console.WriteLine("Server up and running, waiting for players...");
-            game = new Game(this);
 
             try
             {
@@ -31,7 +32,7 @@ namespace Hangman
                 while (true)
                 {
                     TcpClient c = listener.AcceptTcpClient();
-                    PlayerHandler newClient = new PlayerHandler(c, this, game.GuessQueue);
+                    PlayerHandler newClient = new PlayerHandler(c, this);
                     players.Add(newClient);
 
                     Thread clientThread = new Thread(newClient.Run);
@@ -55,12 +56,13 @@ namespace Hangman
 
         public void StartGame()
         {
-            if (players.Count > 1 && _gameOn == false)
+            if (players.Count > 1)
             {
-                game.StartGame();
-                _gameOn = true;
+                game = new Game(this);
+                GuessQueue.Clear();
                 Thread queueThread = new Thread(game.GetGuessQueue);
                 queueThread.Start();
+                game.StartGame();
                 //game.GetGuessQueue();
             }
         }
@@ -121,8 +123,9 @@ namespace Hangman
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
-
-                    w.Write($"{tmpInput.Player.Name}: {tmpInput.Message}");
+                    tmpInput.Message = $"{tmpInput.Player.Name}: {tmpInput.Message}";
+                    var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                    w.Write(tmpJson);
                     w.Flush();
                 }
             }

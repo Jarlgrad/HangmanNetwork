@@ -16,7 +16,7 @@ namespace Networking_client
         public Player Player { get; set; }
         public List<string> Players { get; set; }
         public string GameBoard { get; set; }
-
+        public bool GameOn { get; set; }
 
     }
 }

@@ -18,7 +18,6 @@ namespace Hangman
         public List<char> WrongGuesses { get; set; }
         public List<GameWords> Dictionary { get; set; }
         public Server MyServer { get; set; }
-        public Queue<VCTProtocol> GuessQueue { get; set; }
         public bool RoundOver { get; set; }
         public List<string> PlayersToClients { get; set; }
         public List<char> AllGuesses { get; set; }
@@ -30,9 +29,9 @@ namespace Hangman
             HiddenWord = new List<char>();
             WrongGuesses = new List<char>();
             AllGuesses = new List<char>();
-            GuessQueue = new Queue<VCTProtocol>();
             Dictionary = GetDictionary();
             KeyWord = SetKeyWord();
+            SetHiddenWord(KeyWord);
             MyServer = myServer;
         }
 
@@ -41,9 +40,9 @@ namespace Hangman
             do
             {
                 Thread.Sleep(1000);
-                if (GuessQueue.Count > 0)
+                if (MyServer.GuessQueue.Count > 0)
                 {
-                    Play(GuessQueue.Dequeue());
+                    Play(MyServer.GuessQueue.Dequeue());
                 }
             } while (!RoundOver);
 
@@ -51,16 +50,11 @@ namespace Hangman
 
         public void StartGame()
         {
-            // Todo: ska bara köras en gång
-            SetHiddenWord(KeyWord);
-            // Här initierades queueThread tidigare...
-
             var tmpStr = DrawGame();
             VCTProtocol tmpVCT = new VCTProtocol();
             tmpVCT.GameBoard = tmpStr;
-            //tmpVCT.Message = $"Välkommen till spelet {tmpVCT.Player.Name}";
-            //MyServer.ServerBroadcast(tmpVCT);
-
+            tmpVCT.GameOn = true;
+            MyServer.ServerBroadcast(tmpVCT);
         }
 
         /// <summary>
@@ -69,7 +63,6 @@ namespace Hangman
         /// <returns>Ord ur dictionary</returns>
         private string SetKeyWord()
         {
-            // Todo: Vid Nytt spel Ska denna metod ta fram ett nytt ord! 
             Random rand = new Random();
             var keyword = Dictionary.ElementAt(rand.Next(0, Dictionary.Count));
             return keyword.Word;
@@ -174,12 +167,20 @@ namespace Hangman
             sb = strb.ToString();
 
             // Todo: Lägg till möjligheter att ändra antal gissningar vid nytt spel. 
-            if (sb == KeyWord || WrongGuesses.Count > 10)
+            if (sb == KeyWord )
             {
                 RoundOver = true;
-                VCTProtocol tmpVCT = new VCTProtocol();
-                tmpVCT.Message = $"Game Over {tmpInput.Player.Name} won the game ()";
-                MyServer.ServerBroadcast(tmpVCT);
+                tmpInput.Message = $"{tmpInput.Player.Name} won the game";
+                tmpInput.Player.WonGame = true;
+                tmpInput.Player.Wins++;
+                MyServer.ServerBroadcast(tmpInput);
+            }
+            else if (WrongGuesses.Count > 10)
+            {
+                RoundOver = true;
+                tmpInput.GameOn = RoundOver;
+                tmpInput.Message = $"You all lost, get your shit together";
+                MyServer.ServerBroadcast(tmpInput);
             }
         }
 

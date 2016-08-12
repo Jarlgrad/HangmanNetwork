@@ -57,18 +57,33 @@ namespace Networking_client
             {
                 while (true)
                 {
+                    // Todo: Innan man skriver start ska meddelandet: Skriv start för att börja" komma fram. 
+                    // Todo: När man skrivit start ska spelbrädet skickas ut till alla spelare. 
+                    // Todo: När man skriver restart ska spelet börja om. 
                     NetworkStream n = client.GetStream();
                     message = new BinaryReader(n).ReadString();
-                    ClientVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                    var tmpVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
 
+                    ClientVCT.GameOn = tmpVCT.GameOn;
+                    ClientVCT.IncorrectGuesses = tmpVCT.IncorrectGuesses;
+                    ClientVCT.AllGuesses = tmpVCT.AllGuesses;
+                    ClientVCT.Players = tmpVCT.Players;
+                    ClientVCT.Guess = tmpVCT.Guess;
+
+                    if (ClientVCT.GameOn)
+                    {
+                        Console.Clear();
+                        DrawGameStats(ClientVCT);
+                        Console.Write($"Rundan är slut. {Environment.NewLine}{Environment.NewLine}Skriv start för att börja en ny runda");
+                    }
                     if (ClientVCT.Guess != '\0')
                     {
                         Console.Clear();
                         DrawGameStats(ClientVCT);
-                        Console.Write($"{ClientVCT.Player.Name} {Environment.NewLine}gissade på {ClientVCT.Guess} - {ClientVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
+                        Console.Write($"{tmpVCT.Player.Name} {Environment.NewLine}gissade på {tmpVCT.Guess} - {tmpVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
                     }
                     else
-                        Console.WriteLine(ClientVCT.Message);
+                        Console.WriteLine(tmpVCT.Message);
                 }
             }
             catch (Exception ex)
@@ -172,6 +187,15 @@ namespace Networking_client
 
                         //    }
                         //}
+                        if (ClientVCT.AllGuesses != null)
+                        {
+                            var qresult = ClientVCT.AllGuesses.FirstOrDefault(guess => guess.Equals(message[0]));
+                            if (qresult == message[0])
+                            {
+                                Console.WriteLine("Ni har redan gissat på denna bokstaven, din sopa");
+                            }
+                        }
+
                         ClientVCT.Guess = message[0];
                         var tmpJson = JsonConvert.SerializeObject(ClientVCT);
                         w.Write(tmpJson);

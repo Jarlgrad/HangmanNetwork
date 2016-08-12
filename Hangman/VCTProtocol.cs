@@ -16,6 +16,6 @@ namespace Hangman
         public List<char> IncorrectGuesses { get; set; }
         public List<string> Players { get; set; }
         public string GameBoard { get; set; }
-
+        public bool GameOn { get; set; }
     }
 }
