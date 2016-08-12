@@ -15,13 +15,14 @@ namespace Hangman
     {
         public List<PlayerHandler> players = new List<PlayerHandler>();
         bool _gameOn = false;
+        Game game;
         public string Name { get; set; }
 
         public void Run()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, 5000);
             Console.WriteLine("Server up and running, waiting for players...");
-            Game game = new Game(this);
+            game = new Game(this);
 
             try
             {
@@ -38,11 +39,7 @@ namespace Hangman
                     // Sätter trådens Name.Property
                     //Thread.CurrentThread.Name = "clientHandlerThread";
 
-                    if (players.Count > 1 && _gameOn == false)
-                    {
-                        game.StartGame();
-                        _gameOn = true;
-                    }
+
                 }
             }
             catch (Exception ex)
@@ -55,6 +52,19 @@ namespace Hangman
                     listener.Stop();
             }
         }
+
+        public void StartGame()
+        {
+            if (players.Count > 1 && _gameOn == false)
+            {
+                game.StartGame();
+                _gameOn = true;
+                Thread queueThread = new Thread(game.GetGuessQueue);
+                queueThread.Start();
+                //game.GetGuessQueue();
+            }
+        }
+
         public void BroadcastNewUser(VCTProtocol tmpInput)
         {
             VCTProtocol tmpVCT = new VCTProtocol();

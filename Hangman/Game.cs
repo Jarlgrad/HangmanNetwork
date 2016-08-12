@@ -53,13 +53,13 @@ namespace Hangman
         {
             // Todo: ska bara köras en gång
             SetHiddenWord(KeyWord);
-            Thread queueThread = new Thread(GetGuessQueue);
-            queueThread.Start();
+            // Här initierades queueThread tidigare...
+
             var tmpStr = DrawGame();
             VCTProtocol tmpVCT = new VCTProtocol();
-            tmpVCT.Message = $"Välkommen till spelet {tmpVCT.Player.Name}";
-            MyServer.ServerBroadcast(tmpVCT);
-            Thread.CurrentThread.Name = "queueThread";
+            tmpVCT.GameBoard = tmpStr;
+            //tmpVCT.Message = $"Välkommen till spelet {tmpVCT.Player.Name}";
+            //MyServer.ServerBroadcast(tmpVCT);
 
         }
 

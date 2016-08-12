@@ -35,8 +35,8 @@ namespace Networking_client
             Console.WriteLine($"IP: {localIP}");
             #endregion
 
-            client = new TcpClient("192.168.220.107", 5000);
-            //client = new TcpClient(localIP, 5000);
+            //client = new TcpClient("192.168.220.107", 5000);
+            client = new TcpClient(localIP, 5000);
             ClientVCT = new VCTProtocol { Version = "0.1", Player = new Player(), AllGuesses = new List<char>(), IncorrectGuesses = new List<char>(), Players = new List<string>() };
 
             Thread listenerThread = new Thread(Send);

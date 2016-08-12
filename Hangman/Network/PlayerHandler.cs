@@ -50,8 +50,13 @@ namespace Hangman
                     NetworkStream n = tcpclient.GetStream();
 
                     message = new BinaryReader(n).ReadString();
-                    var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(message);
-                    PlayerData.Guess = tmpJson.Guess;
+                    var tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                    PlayerData = tmpInput;
+
+                    if (tmpInput.Message.ToLower() == "start")
+                    {
+                        myServer.StartGame();
+                    }
 
                     // Todo: Privata meddelanden och byta namn, om det finns tid
                     //
@@ -77,15 +82,13 @@ namespace Hangman
 
                     //}
 
-                    if (PlayerData.Guess != '\0')
+                    if (tmpInput.Guess != '\0')
                     {
                         GuessQueue.Enqueue(PlayerData);
-                        Console.WriteLine(PlayerData);
                     }
                     else
                     {
-                        myServer.Broadcast(PlayerData);
-                        Console.WriteLine(PlayerData);
+                        myServer.ServerBroadcast(PlayerData);
                     }
                 }
 
@@ -107,9 +110,18 @@ namespace Hangman
             var tmpMsg = JsonConvert.SerializeObject(PlayerData);
             w.Write(tmpMsg);
             w.Flush();
-
+            string username = string.Empty;
             Console.WriteLine("Nu väntar servern in ett användarnamn");
-            string username = new BinaryReader(n).ReadString();
+            try
+            {
+                username = new BinaryReader(n).ReadString();
+
+            }
+            catch (Exception)
+            {
+
+                Console.WriteLine(PlayerData.Player.Name + " cancled their connection!");
+            }
             var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(username);
             PlayerData.Player.Name = tmpJson.Message;
             Console.WriteLine($"User {PlayerData.Player.Name} set username");
