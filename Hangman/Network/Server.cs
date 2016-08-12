@@ -15,6 +15,7 @@ namespace Hangman
     {
         public List<PlayerHandler> players = new List<PlayerHandler>();
         bool _gameOn = false;
+        public string Name { get; set; }
 
         public void Run()
         {
@@ -86,12 +87,26 @@ namespace Hangman
                 w.Flush();
             }
         }
+        public void BroadcastGuess(VCTProtocol tmpInput)
+        {
+            foreach (PlayerHandler tmpClient in players)
+            {
+                if (tmpClient.PlayerData.Player.Name != tmpInput.Player.Name)
+                {
+                    NetworkStream n = tmpClient.tcpclient.GetStream();
+                    BinaryWriter w = new BinaryWriter(n);
+                    var tmpJson = JsonConvert.SerializeObject(tmpInput);
+                    w.Write(tmpJson);
+                    w.Flush();
+                }
+            }
+        }
 
         public void Broadcast(VCTProtocol tmpInput)
         {
             foreach (PlayerHandler tmpClient in players)
             {
-                if (tmpClient.Name != tmpInput.Player.Name)
+                if (tmpClient.PlayerData.Player.Name != tmpInput.Player.Name)
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
@@ -106,11 +121,11 @@ namespace Hangman
         {
             foreach (PlayerHandler tmpClient in players)
             {
-                if (tmpClient.Name.ToLower() == clientRecieving.ToLower())
+                if (tmpClient.PlayerData.Player.Name.ToLower() == clientRecieving.ToLower())
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
-                    w.Write($"{client.Name} (private): {message}");
+                    w.Write($"{client.PlayerData.Player.Name} (private): {message}");
                     w.Flush();
                 }
                 else if (players.Count() == 1)
@@ -126,10 +141,10 @@ namespace Hangman
         public void DisconnectClient(PlayerHandler client)
         {
             players.Remove(client);
-            Console.WriteLine($"{client.Name} has left the building...");
+            Console.WriteLine($"{client.PlayerData.Player.Name} has left the building...");
             VCTProtocol tmpVCT = new VCTProtocol
             {
-                Message = $"{client.Name} har lämnat spelet"
+                Message = $"{client.PlayerData.Player.Name} har lämnat spelet"
             };
             Broadcast(tmpVCT);
         }

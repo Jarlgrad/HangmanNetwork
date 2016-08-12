@@ -34,7 +34,7 @@ namespace Networking_client
             Console.WriteLine($"IP: {localIP}");
             #endregion
 
-            client = new TcpClient("192.168.220.92", 5000);
+            client = new TcpClient("192.168.220.107", 5000);
             //client = new TcpClient(localIP, 5000);
             ClientVCT = new VCTProtocol { Version = "0.1" };
 
@@ -60,11 +60,6 @@ namespace Networking_client
                     message = new BinaryReader(n).ReadString();
                     ClientVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
 
-                    // FÖRSÖKER kontrollera ifall bosktaven redan gissats på en gång! 
-                    if (ClientVCT.Guess != '\0')
-                    {
-                        Console.WriteLine(ClientVCT.Message);
-                    }
                     Console.WriteLine(ClientVCT.Message);
                 }
             }

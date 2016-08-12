@@ -15,10 +15,9 @@ namespace Hangman
     {
         public TcpClient tcpclient;
         private Server myServer;
+        public VCTProtocol PlayerData { get; set; }
 
-        public string Name { get; set; }
-        public bool WonGame { get; set; }
-        public int Wins { get; set; }
+
         public Queue<VCTProtocol> GuessQueue { get; set; }
 
 
@@ -27,6 +26,7 @@ namespace Hangman
             tcpclient = c;
             this.myServer = server;
             GuessQueue = guessQueue;
+            PlayerData = new VCTProtocol { IncorrectGuesses = new List<char>(), AllGuesses = new List<char>(), Player = new Player() };
         }
 
         public void Run()
@@ -50,9 +50,8 @@ namespace Hangman
                     NetworkStream n = tcpclient.GetStream();
 
                     message = new BinaryReader(n).ReadString();
-                    var tempVCT = new VCTProtocol();
-                    tempVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
-                    tempVCT.Player = this;
+                    var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                    PlayerData.Guess = tmpJson.Guess;
 
                     // Todo: Privata meddelanden och byta namn, om det finns tid
                     //
@@ -78,15 +77,15 @@ namespace Hangman
 
                     //}
 
-                    if (tempVCT.Guess != '\0')
+                    if (PlayerData.Guess != '\0')
                     {
-                        GuessQueue.Enqueue(tempVCT);
-                        Console.WriteLine(tempVCT);
+                        GuessQueue.Enqueue(PlayerData);
+                        Console.WriteLine(PlayerData);
                     }
                     else
                     {
-                        myServer.Broadcast(tempVCT);
-                        Console.WriteLine(tempVCT);
+                        myServer.Broadcast(PlayerData);
+                        Console.WriteLine(PlayerData);
                     }
                 }
 
@@ -104,18 +103,17 @@ namespace Hangman
             Console.WriteLine("Nu välkomnas en ny användare");
             NetworkStream n = tcpclient.GetStream();
             BinaryWriter w = new BinaryWriter(n);
-            var tempVCT = new VCTProtocol();
-            tempVCT.Message = "Välkommen, sätt ett användarnamn";
-            var tmpMsg = JsonConvert.SerializeObject(tempVCT);
+            PlayerData.Message = "Välkommen, sätt ett användarnamn";
+            var tmpMsg = JsonConvert.SerializeObject(PlayerData);
             w.Write(tmpMsg);
             w.Flush();
+
             Console.WriteLine("Nu väntar servern in ett användarnamn");
             string username = new BinaryReader(n).ReadString();
-            tempVCT = JsonConvert.DeserializeObject<VCTProtocol>(username);
-            this.Name = tempVCT.Message;
-            tempVCT.Player = this;
-            Console.WriteLine($"User {tempVCT.Player.Name} set username");
-            myServer.BroadcastNewUser(tempVCT);
+            var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(username);
+            PlayerData.Player.Name = tmpJson.Message;
+            Console.WriteLine($"User {PlayerData.Player.Name} set username");
+            myServer.BroadcastNewUser(PlayerData);
         }
     }
 }

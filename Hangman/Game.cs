@@ -52,6 +52,10 @@ namespace Hangman
             SetHiddenWord(KeyWord);
             Thread queueThread = new Thread(GetGuessQueue);
             queueThread.Start();
+            var tmpStr = DrawGame();
+            VCTProtocol tmpVCT = new VCTProtocol();
+            tmpVCT.Message = $"Välkommen till spelet {Environment.NewLine} {tmpStr.Message}";
+            MyServer.ServerBroadcast(tmpVCT);
             Thread.CurrentThread.Name = "queueThread";
 
         }
