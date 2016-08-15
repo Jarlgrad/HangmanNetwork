@@ -16,7 +16,7 @@ namespace Networking_client
     {
         private TcpClient client;
         public VCTProtocol ClientVCT { get; set; }
-
+        public List<string> ChatBox { get; set; }
 
         public void Start()
         {
@@ -35,10 +35,10 @@ namespace Networking_client
             Console.WriteLine($"IP: {localIP}");
             #endregion
 
-            client = new TcpClient("192.168.220.138", 5000);
-            //client = new TcpClient(localIP, 5000);
+            //client = new TcpClient("192.168.220.138", 5000);
+            client = new TcpClient(localIP, 5000);
             ClientVCT = new VCTProtocol { Version = "0.1", Player = new Player(), AllGuesses = new List<char>(), IncorrectGuesses = new List<char>(), Players = new List<string>() };
-
+            ChatBox = new List<string>();
 
             Thread listenerThread = new Thread(Send);
             listenerThread.Start();
@@ -68,22 +68,38 @@ namespace Networking_client
                         {
                             Console.Clear();
                             DrawGameStats(ClientVCT);
-
                         }
                         if (ClientVCT.Guess != '\0')
                         {
                             Console.Clear();
                             DrawGameStats(ClientVCT);
-                            Console.Write($"{ClientVCT.Player.Name} {Environment.NewLine}gissade på {ClientVCT.Guess} - {ClientVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
+                            Console.WriteLine($"{ClientVCT.Player.Name} {Environment.NewLine}gissade på {ClientVCT.Guess} - {ClientVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
+                            UpdateChat();
+                            ClientVCT.Guess = '\0';
                         }
                         else
-                            Console.WriteLine(ClientVCT.Message);
+                            UpdateChat(ClientVCT);
+                        //Console.WriteLine(ClientVCT.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void UpdateChat()
+        {
+            int _chatCursorY = 20;
+            if (ChatBox != null)
+            {
+                foreach (var item in ChatBox)
+                {
+                    Console.SetCursorPosition(0, _chatCursorY);
+                    Console.WriteLine(item);
+                    _chatCursorY++;
+                }
             }
         }
 
@@ -162,6 +178,27 @@ namespace Networking_client
                 Console.WriteLine("Gissa på en bokstav!");
                 ClientVCT.Message = string.Empty;
             }
+        }
+
+        private void UpdateChat(VCTProtocol clientVCT)
+        {
+            int _chatCursorY = 20;
+            if (ChatBox != null)
+            {
+                if (ChatBox.Count > 9)
+                    ChatBox.RemoveAt(0);
+
+            }
+
+            ChatBox.Add(clientVCT.Message);
+
+            foreach (var item in ChatBox)
+            {
+                Console.SetCursorPosition(0, _chatCursorY);
+                Console.WriteLine(item);
+                _chatCursorY++;
+            }
+
         }
 
         public void Send()

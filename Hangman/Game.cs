@@ -22,6 +22,7 @@ namespace Hangman
         public bool RoundOver { get; set; }
         public List<string> PlayersToClients { get; set; }
         public List<char> AllGuesses { get; set; }
+        public Thread QueueThread { get; set; }
 
 
         public Game(Server myServer)
@@ -32,35 +33,35 @@ namespace Hangman
             AllGuesses = new List<char>();
             GuessQueue = new Queue<VCTProtocol>();
             Dictionary = GetDictionary();
-            KeyWord = SetKeyWord();
+            QueueThread = new Thread(GetGuessQueue);
+            QueueThread.Start();
             MyServer = myServer;
         }
 
         public void GetGuessQueue()
         {
-            do
+            while (true)
             {
                 Thread.Sleep(1000);
                 if (GuessQueue.Count > 0)
                 {
                     Play(GuessQueue.Dequeue());
                 }
-            } while (!RoundOver);
+            }
 
         }
 
         public void StartGame()
         {
             // Todo: ska bara köras en gång
+            KeyWord = SetKeyWord();
+
             SetHiddenWord(KeyWord);
-            Thread queueThread = new Thread(GetGuessQueue);
-            queueThread.Start();
             var tmpStr = DrawGame();
             VCTProtocol tmpVCT = new VCTProtocol();
-            tmpVCT.Message = $"Välkommen till spelet {tmpVCT.Player.Name}";
+            tmpVCT.Message = $"Välkommen till en ny runda av Hang Man!";
             tmpVCT.GameBoard = tmpStr;
             MyServer.ServerBroadcast(tmpVCT);
-            Thread.CurrentThread.Name = "queueThread";
 
         }
 
@@ -84,7 +85,7 @@ namespace Hangman
         {
             Console.WriteLine("Här börjar GetDictionary-metoden");
             // Måste sätta ny directory!! 
-            StreamReader readFile = new StreamReader(@"C:\Users\Administrator\Source\Repos\HangmanNetwork\Hangman\Ordlista.txt");
+            StreamReader readFile = new StreamReader(@"C:\Users\Administrator\Documents\Visual Studio 2015\Projects\Hangman\Hangman\Hangman\Ordlista.txt");
             var tmpWords = readFile.ReadLine();
 
             GameWords words = new GameWords();
@@ -99,6 +100,8 @@ namespace Hangman
         /// <param name="keyWord"></param>
         public void SetHiddenWord(string keyWord)
         {
+            HiddenWord.Clear();
+
             for (int i = 0; i < keyWord.Length; i++)
             {
                 HiddenWord.Add('_');
@@ -178,10 +181,11 @@ namespace Hangman
             if (sb == KeyWord || WrongGuesses.Count > 10)
             {
                 RoundOver = true;
-                VCTProtocol tmpVCT = new VCTProtocol();
-                tmpVCT.Message = $"Game Over {tmpInput.Player.Name} won the game ()";
-                tmpVCT.RoundOver = true;
-                MyServer.ServerBroadcast(tmpVCT);
+
+                tmpInput.Message = $"Game Over {tmpInput.Player.Name} won the game ()";
+                tmpInput.RoundOver = true;
+                MyServer.ServerBroadcast(tmpInput);
+                StartGame();
             }
         }
 
