@@ -18,42 +18,40 @@ namespace Hangman
         public VCTProtocol PlayerData { get; set; }
 
 
+        public Queue<VCTProtocol> GuessQueue { get; set; }
 
 
-        public PlayerHandler(TcpClient c, Server server)
+        public PlayerHandler(TcpClient c, Server server, Queue<VCTProtocol> guessQueue)
         {
             tcpclient = c;
             this.myServer = server;
+            GuessQueue = guessQueue;
             PlayerData = new VCTProtocol { IncorrectGuesses = new List<char>(), AllGuesses = new List<char>(), Player = new Player() };
         }
 
         public void Run()
         {
             bool firstLogin = true;
+
             while (firstLogin)
             {
                 SetUserName();
                 firstLogin = false;
             }
+
             try
             {
                 string message = "";
+
+
+
                 while (!message.Equals("quit"))
                 {
                     NetworkStream n = tcpclient.GetStream();
 
                     message = new BinaryReader(n).ReadString();
-                    var tmpInput = JsonConvert.DeserializeObject<VCTProtocol>(message);
-                    PlayerData = tmpInput;
-
-                    if (tmpInput.Message.ToLower() == "start" && tmpInput.GameOn == false)
-                    {
-                        myServer.StartGame();
-                    }
-                    else if (tmpInput.GameOn == true)
-                    {
-                        myServer.ServerBroadcast(tmpInput);
-                    }
+                    var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(message);
+                    PlayerData.Guess = tmpJson.Guess;
 
                     // Todo: Privata meddelanden och byta namn, om det finns tid
                     //
@@ -79,13 +77,15 @@ namespace Hangman
 
                     //}
 
-                    if (tmpInput.Guess != '\0')
+                    if (PlayerData.Guess != '\0')
                     {
-                        myServer.GuessQueue.Enqueue(PlayerData);
+                        GuessQueue.Enqueue(PlayerData);
+                        Console.WriteLine(PlayerData);
                     }
                     else
                     {
                         myServer.Broadcast(PlayerData);
+                        Console.WriteLine(PlayerData);
                     }
                 }
 
@@ -107,18 +107,9 @@ namespace Hangman
             var tmpMsg = JsonConvert.SerializeObject(PlayerData);
             w.Write(tmpMsg);
             w.Flush();
-            string username = string.Empty;
+
             Console.WriteLine("Nu väntar servern in ett användarnamn");
-            try
-            {
-                username = new BinaryReader(n).ReadString();
-
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine(PlayerData.Player.Name + " cancled their connection!");
-            }
+            string username = new BinaryReader(n).ReadString();
             var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(username);
             PlayerData.Player.Name = tmpJson.Message;
             Console.WriteLine($"User {PlayerData.Player.Name} set username");

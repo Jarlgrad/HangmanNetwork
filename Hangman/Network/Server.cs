@@ -14,16 +14,14 @@ namespace Hangman
     public class Server
     {
         public List<PlayerHandler> players = new List<PlayerHandler>();
-        Game game;
-        public Queue<VCTProtocol> GuessQueue { get; set; }
-
+        bool _gameOn = false;
         public string Name { get; set; }
 
         public void Run()
         {
-            GuessQueue = new Queue<VCTProtocol>();
             TcpListener listener = new TcpListener(IPAddress.Any, 5000);
             Console.WriteLine("Server up and running, waiting for players...");
+            Game game = new Game(this);
 
             try
             {
@@ -32,7 +30,7 @@ namespace Hangman
                 while (true)
                 {
                     TcpClient c = listener.AcceptTcpClient();
-                    PlayerHandler newClient = new PlayerHandler(c, this);
+                    PlayerHandler newClient = new PlayerHandler(c, this, game.GuessQueue);
                     players.Add(newClient);
 
                     Thread clientThread = new Thread(newClient.Run);
@@ -40,7 +38,11 @@ namespace Hangman
                     // Sätter trådens Name.Property
                     //Thread.CurrentThread.Name = "clientHandlerThread";
 
-
+                    if (players.Count > 1 && _gameOn == false)
+                    {
+                        game.StartGame();
+                        _gameOn = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -53,20 +55,6 @@ namespace Hangman
                     listener.Stop();
             }
         }
-
-        public void StartGame()
-        {
-            if (players.Count > 1)
-            {
-                game = new Game(this);
-                GuessQueue.Clear();
-                Thread queueThread = new Thread(game.GetGuessQueue);
-                queueThread.Start();
-                game.StartGame();
-                //game.GetGuessQueue();
-            }
-        }
-
         public void BroadcastNewUser(VCTProtocol tmpInput)
         {
             VCTProtocol tmpVCT = new VCTProtocol();
@@ -123,9 +111,8 @@ namespace Hangman
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
-                    tmpInput.Message = $"{tmpInput.Player.Name}: {tmpInput.Message}";
-                    var tmpJson = JsonConvert.SerializeObject(tmpInput);
-                    w.Write(tmpJson);
+
+                    w.Write($"{tmpInput.Player.Name}: {tmpInput.Message}");
                     w.Flush();
                 }
             }
