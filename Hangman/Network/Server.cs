@@ -111,8 +111,9 @@ namespace Hangman
                 {
                     NetworkStream n = tmpClient.tcpclient.GetStream();
                     BinaryWriter w = new BinaryWriter(n);
+                    var tmpJson = JsonConvert.SerializeObject(tmpInput);
 
-                    w.Write($"{tmpInput.Player.Name}: {tmpInput.Message}");
+                    w.Write(tmpJson);
                     w.Flush();
                 }
             }

@@ -58,6 +58,7 @@ namespace Hangman
             var tmpStr = DrawGame();
             VCTProtocol tmpVCT = new VCTProtocol();
             tmpVCT.Message = $"Välkommen till spelet {tmpVCT.Player.Name}";
+            tmpVCT.GameBoard = tmpStr;
             MyServer.ServerBroadcast(tmpVCT);
             Thread.CurrentThread.Name = "queueThread";
 

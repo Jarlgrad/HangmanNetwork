@@ -61,14 +61,22 @@ namespace Networking_client
                     message = new BinaryReader(n).ReadString();
                     ClientVCT = JsonConvert.DeserializeObject<VCTProtocol>(message);
 
-                    if (ClientVCT.Guess != '\0')
+                    if (ClientVCT.GameBoard != "")
                     {
-                        Console.Clear();
-                        DrawGameStats(ClientVCT);
-                        Console.Write($"{ClientVCT.Player.Name} {Environment.NewLine}gissade på {ClientVCT.Guess} - {ClientVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
+                        if (ClientVCT.Message == "start")
+                        {
+                            Console.Clear();
+                            DrawGameStats(ClientVCT);
+                        }
+                        if (ClientVCT.Guess != '\0')
+                        {
+                            Console.Clear();
+                            DrawGameStats(ClientVCT);
+                            Console.Write($"{ClientVCT.Player.Name} {Environment.NewLine}gissade på {ClientVCT.Guess} - {ClientVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
+                        }
+                        else
+                            Console.WriteLine(ClientVCT.Message);
                     }
-                    else
-                        Console.WriteLine(ClientVCT.Message);
                 }
             }
             catch (Exception ex)
@@ -119,6 +127,32 @@ namespace Networking_client
                     guessCursorX += 2;
 
                 }
+                Console.SetCursorPosition(0, 0);
+            }
+            else
+            {
+                Console.SetCursorPosition(40, 0);
+                Console.Write("HÄNGA GUBBEN");
+                Console.SetCursorPosition(40, 1);
+                Console.Write("============");
+                Console.SetCursorPosition(40, 2);
+                Console.Write(clientVCT.GameBoard);
+
+                Console.SetCursorPosition(80, 0);
+                Console.Write("Runda 1      Poäng");
+                Console.SetCursorPosition(80, 1);
+                Console.Write("------------------");
+
+                Console.SetCursorPosition(80, ++playerCursorY);
+                Console.Write("Felaktiga svar:");
+                playerCursorY++;
+                //foreach (var item in ClientVCT.IncorrectGuesses)
+                //{
+                //    Console.SetCursorPosition(guessCursorX, playerCursorY);
+                //    Console.Write($"{item}.");
+                //    guessCursorX += 2;
+
+                //}
                 Console.SetCursorPosition(0, 0);
             }
         }

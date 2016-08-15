@@ -52,6 +52,7 @@ namespace Hangman
                     message = new BinaryReader(n).ReadString();
                     var tmpJson = JsonConvert.DeserializeObject<VCTProtocol>(message);
                     PlayerData.Guess = tmpJson.Guess;
+                    PlayerData.Message = tmpJson.Message;
 
                     // Todo: Privata meddelanden och byta namn, om det finns tid
                     //
