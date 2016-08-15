@@ -187,7 +187,6 @@ namespace Networking_client
             {
                 if (ChatBox.Count > 9)
                     ChatBox.RemoveAt(0);
-
             }
 
             ChatBox.Add(clientVCT.Message);
@@ -250,10 +249,30 @@ namespace Networking_client
 
                         //    }
                         //}
-                        ClientVCT.Guess = message[0];
-                        var tmpJson = JsonConvert.SerializeObject(ClientVCT);
-                        w.Write(tmpJson);
-                        w.Flush();
+                        if (ClientVCT.AllGuesses != null)
+                        {
+                            bool alreadyGuessed = false;
+                            foreach (var item in ClientVCT.AllGuesses)
+                            {
+                                if (item == message[0])
+                                {
+                                    alreadyGuessed = true;
+                                }
+                            }
+
+                            if (alreadyGuessed)
+                            {
+                                ClientVCT.Message = "Ni har ju redan gissat på bokstaven";
+                                UpdateChat(ClientVCT);
+                            }
+                            else
+                            {
+                                ClientVCT.Guess = message[0];
+                                var _tmpJson = JsonConvert.SerializeObject(ClientVCT);
+                                w.Write(_tmpJson);
+                                w.Flush();
+                            }
+                        }
                     }
                     else
                     {

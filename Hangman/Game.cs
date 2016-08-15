@@ -48,11 +48,12 @@ namespace Hangman
                     Play(GuessQueue.Dequeue());
                 }
             }
-
         }
 
         public void StartGame()
         {
+            AllGuesses.Clear();
+            WrongGuesses.Clear();
             // Todo: ska bara köras en gång
             KeyWord = SetKeyWord();
 
@@ -178,13 +179,32 @@ namespace Hangman
             sb = strb.ToString();
 
             // Todo: Lägg till möjligheter att ändra antal gissningar vid nytt spel. 
-            if (sb == KeyWord || WrongGuesses.Count > 10)
+            if (sb == KeyWord)
             {
                 RoundOver = true;
 
-                tmpInput.Message = $"Game Over {tmpInput.Player.Name} won the game ()";
+                tmpInput.Message = $"Där satt den! {tmpInput.Player.Name} Får 1 poäng!";
                 tmpInput.RoundOver = true;
+                foreach (var item in MyServer.players)
+                {
+                    if (item.PlayerData.Player.Name == tmpInput.Player.Name)
+                    {
+                        item.PlayerData.Player.Wins++;
+                    }
+                }
                 MyServer.ServerBroadcast(tmpInput);
+
+                StartGame();
+            }
+            else if (WrongGuesses.Count > 10)
+            {
+                RoundOver = true;
+
+                tmpInput.Message = $"Kunde ni inte den lätta? Spelet är slut. Ni tappar alla vars 1 poäng!";
+                foreach (var item in MyServer.players)
+                {
+                    item.PlayerData.Player.Wins--;
+                }
                 StartGame();
             }
         }
