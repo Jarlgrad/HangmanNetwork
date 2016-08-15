@@ -76,7 +76,7 @@ namespace Networking_client
                             Console.WriteLine($"{ClientVCT.Player.Name} {Environment.NewLine}gissade på {ClientVCT.Guess} - {ClientVCT.Message} {Environment.NewLine}{Environment.NewLine}Gissa på en ny bokstav: ");
                             UpdateChat();
                             ClientVCT.Guess = '\0';
-                        }
+                        }   
                         else
                             UpdateChat(ClientVCT);
                         //Console.WriteLine(ClientVCT.Message);

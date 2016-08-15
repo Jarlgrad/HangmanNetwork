@@ -60,7 +60,7 @@ namespace Hangman
             SetHiddenWord(KeyWord);
             var tmpStr = DrawGame();
             VCTProtocol tmpVCT = new VCTProtocol();
-            tmpVCT.Message = $"Välkommen till en ny runda av Hang Man!";
+            tmpVCT.Message = $"Välkommen till en ny runda av Gubbhäng!!";
             tmpVCT.GameBoard = tmpStr;
             MyServer.ServerBroadcast(tmpVCT);
 
@@ -183,7 +183,7 @@ namespace Hangman
             {
                 RoundOver = true;
 
-                tmpInput.Message = $"Där satt den! {tmpInput.Player.Name} Får 1 poäng!";
+                tmpInput.Message = $"Där satt den! Alla får 1 poäng!";
                 tmpInput.RoundOver = true;
                 foreach (var item in MyServer.players)
                 {
@@ -196,11 +196,11 @@ namespace Hangman
 
                 StartGame();
             }
-            else if (WrongGuesses.Count > 10)
+            else if (WrongGuesses.Count > 5)
             {
                 RoundOver = true;
 
-                tmpInput.Message = $"Kunde ni inte den lätta? Spelet är slut. Ni tappar alla vars 1 poäng!";
+                tmpInput.Message = $"Kunde ni inte den lätta? {Environment.NewLine}Alla tappar 1 poäng!";
                 foreach (var item in MyServer.players)
                 {
                     item.PlayerData.Player.Wins--;
