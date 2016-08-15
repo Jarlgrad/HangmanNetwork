@@ -89,38 +89,25 @@ namespace Networking_client
             }
         }
 
-        private void UpdateChat()
-        {
-            int _chatCursorY = 20;
-            if (ChatBox != null)
-            {
-                foreach (var item in ChatBox)
-                {
-                    Console.SetCursorPosition(0, _chatCursorY);
-                    Console.WriteLine(item);
-                    _chatCursorY++;
-                }
-            }
-        }
-
         private void DrawGameStats(VCTProtocol clientVCT)
         {
             int guessCursorX = 80;
             int playerCursorY = 2;
 
+            Console.SetCursorPosition(40, 0);
+            Console.Write("HÄNGA GUBBEN");
+            Console.SetCursorPosition(40, 1);
+            Console.Write("============");
+            Console.SetCursorPosition(40, 2);
+            Console.Write(clientVCT.GameBoard);
+
+            Console.SetCursorPosition(80, 0);
+            Console.Write("Runda 1      Poäng");
+            Console.SetCursorPosition(80, 1);
+            Console.Write("------------------");
+
             if (clientVCT.Players != null)
             {
-                Console.SetCursorPosition(40, 0);
-                Console.Write("HÄNGA GUBBEN");
-                Console.SetCursorPosition(40, 1);
-                Console.Write("============");
-                Console.SetCursorPosition(40, 2);
-                Console.Write(clientVCT.GameBoard);
-
-                Console.SetCursorPosition(80, 0);
-                Console.Write("Runda 1      Poäng");
-                Console.SetCursorPosition(80, 1);
-                Console.Write("------------------");
                 foreach (var player in clientVCT.Players)
                 {
                     Console.SetCursorPosition(80, playerCursorY);
@@ -150,28 +137,11 @@ namespace Networking_client
             }
             else
             {
-                Console.SetCursorPosition(40, 0);
-                Console.Write("HÄNGA GUBBEN");
-                Console.SetCursorPosition(40, 1);
-                Console.Write("============");
-                Console.SetCursorPosition(40, 2);
-                Console.Write(clientVCT.GameBoard);
-
-                Console.SetCursorPosition(80, 0);
-                Console.Write("Runda 1      Poäng");
-                Console.SetCursorPosition(80, 1);
-                Console.Write("------------------");
 
                 Console.SetCursorPosition(80, ++playerCursorY);
                 Console.Write("Felaktiga svar:");
                 playerCursorY++;
-                //foreach (var item in ClientVCT.IncorrectGuesses)
-                //{
-                //    Console.SetCursorPosition(guessCursorX, playerCursorY);
-                //    Console.Write($"{item}.");
-                //    guessCursorX += 2;
 
-                //}
                 Console.SetCursorPosition(0, 0);
                 Console.WriteLine("Välkommen till Hang Man.");
                 Console.WriteLine("En ny runda har inletts.");
@@ -179,13 +149,25 @@ namespace Networking_client
                 ClientVCT.Message = string.Empty;
             }
         }
-
-        private void UpdateChat(VCTProtocol clientVCT)
+        private void UpdateChat()
         {
-            int _chatCursorY = 20;
+            int _chatCursorY = 12;
             if (ChatBox != null)
             {
-                if (ChatBox.Count > 9)
+                foreach (var item in ChatBox)
+                {
+                    Console.SetCursorPosition(0, _chatCursorY);
+                    Console.WriteLine(item);
+                    _chatCursorY++;
+                }
+            }
+        }
+        private void UpdateChat(VCTProtocol clientVCT)
+        {
+            int _chatCursorY = 12;
+            if (ChatBox != null)
+            {
+                if (ChatBox.Count > 4)
                     ChatBox.RemoveAt(0);
             }
 
