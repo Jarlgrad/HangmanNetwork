@@ -39,6 +39,7 @@ namespace Networking_client
             //client = new TcpClient(localIP, 5000);
             ClientVCT = new VCTProtocol { Version = "0.1", Player = new Player(), AllGuesses = new List<char>(), IncorrectGuesses = new List<char>(), Players = new List<string>() };
 
+
             Thread listenerThread = new Thread(Send);
             listenerThread.Start();
 
@@ -67,6 +68,7 @@ namespace Networking_client
                         {
                             Console.Clear();
                             DrawGameStats(ClientVCT);
+
                         }
                         if (ClientVCT.Guess != '\0')
                         {
@@ -120,6 +122,7 @@ namespace Networking_client
                 Console.SetCursorPosition(80, ++playerCursorY);
                 Console.Write("Felaktiga svar:");
                 playerCursorY++;
+
                 foreach (var item in ClientVCT.IncorrectGuesses)
                 {
                     Console.SetCursorPosition(guessCursorX, playerCursorY);
@@ -154,6 +157,10 @@ namespace Networking_client
 
                 //}
                 Console.SetCursorPosition(0, 0);
+                Console.WriteLine("Välkommen till Hang Man.");
+                Console.WriteLine("En ny runda har inletts.");
+                Console.WriteLine("Gissa på en bokstav!");
+                ClientVCT.Message = string.Empty;
             }
         }
 

@@ -86,6 +86,7 @@ namespace Hangman
                     else if (PlayerData.Message.ToLower() == "start")
                     {
                         myServer.ServerBroadcast(PlayerData);
+
                     }
                     else
                     {
