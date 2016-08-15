@@ -180,6 +180,7 @@ namespace Hangman
                 RoundOver = true;
                 VCTProtocol tmpVCT = new VCTProtocol();
                 tmpVCT.Message = $"Game Over {tmpInput.Player.Name} won the game ()";
+                tmpVCT.RoundOver = true;
                 MyServer.ServerBroadcast(tmpVCT);
             }
         }

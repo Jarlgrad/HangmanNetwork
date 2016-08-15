@@ -83,6 +83,10 @@ namespace Hangman
                         GuessQueue.Enqueue(PlayerData);
                         Console.WriteLine(PlayerData);
                     }
+                    else if (PlayerData.Message.ToLower() == "start")
+                    {
+                        myServer.ServerBroadcast(PlayerData);
+                    }
                     else
                     {
                         myServer.Broadcast(PlayerData);
