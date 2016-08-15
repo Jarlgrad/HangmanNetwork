@@ -35,8 +35,12 @@ namespace Networking_client
             Console.WriteLine($"IP: {localIP}");
             #endregion
 
-            //client = new TcpClient("192.168.220.138", 5000);
-            client = new TcpClient(localIP, 5000);
+            Console.WriteLine("GUBBHÄNG!");
+            Console.WriteLine("Ange IP-Address att ansluta till");
+            string connectIP = Console.ReadLine();
+
+            client = new TcpClient(connectIP, 5000);
+            //client = new TcpClient(localIP, 5000);
             ClientVCT = new VCTProtocol { Version = "0.1", Player = new Player(), AllGuesses = new List<char>(), IncorrectGuesses = new List<char>(), Players = new List<string>() };
             ChatBox = new List<string>();
 

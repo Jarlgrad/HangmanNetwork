@@ -14,6 +14,8 @@ namespace Networking_client
     {
         static void Main(string[] args)
         {
+
+
             Client myClient = new Client();
 
             Thread clientThread = new Thread(myClient.Start);
